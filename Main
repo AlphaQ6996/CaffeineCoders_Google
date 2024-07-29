@@ -1,3 +1,59 @@
+function main() {
+  generateRandomData();
+  assignTasks();
+}
+
+function generateRandomData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const tasksSheet = ss.getSheetByName('Tasks');
+  const employeesSheet = ss.getSheetByName('Employees');
+
+  // Clear existing data
+  tasksSheet.clear();
+  employeesSheet.clear();
+  
+  // Set headers for Employees sheet
+  employeesSheet.getRange(1, 1, 1, 4).setValues([['Employee_Name', 'Skills', 'Max_Tasks', 'Email']]);
+  
+  // Set headers for Tasks sheet
+  tasksSheet.getRange(1, 1, 1, 7).setValues([['Task_ID', 'Task_Name', 'Required_Skill', 'Deadline', 'Status', 'assignedTo', 'Notion Page ID']]);
+
+  // Employee Data
+  const employeeNames = ['Alice', 'Bob', 'Carol', 'Dave', 'Eve', 'Frank', 'Grace', 'Hank', 'Ivy', 'Jack', 'Karen', 'Leo', 'Mona', 'Nina', 'Oscar', 'Paul', 'Quinn', 'Rick', 'Sophia', 'Tom', 'Uma', 'Victor', 'Wendy', 'Xander', 'Yara', 'Zack'];
+  const skills = ['Web Development', 'Graphic Design', 'Content Writing', 'Data Analysis', 'SEO'];
+  const maxTasksRange = [2, 3, 4];
+  let employees = [];
+  
+  employeeNames.forEach((name, index) => {
+    const randomSkill = skills[Math.floor(Math.random() * skills.length)];
+    const maxTasks = maxTasksRange[Math.floor(Math.random() * maxTasksRange.length)];
+    const email = `${name.toLowerCase()}@example.com`;
+    employees.push([name, randomSkill, maxTasks, email]);
+  });
+
+  // Write employee data to sheet
+  employeesSheet.getRange(2, 1, employees.length, employees[0].length).setValues(employees);
+
+  // Task Data
+  const taskNames = ['Develop Website', 'Design Logo', 'Write Blog Post', 'Set Up Analytics', 'SEO Optimization', 'Update Website Content', 'Create Marketing Plan', 'Write Product Reviews', 'Analyze Sales Data', 'Improve SEO', 'Website Redesign', 'New Logo Design', 'Write White Paper', 'Market Analysis', 'SEO Audit', 'Web App Development', 'Create Banner Ads', 'Write Press Release', 'Data Cleansing', 'SEO Campaign'];
+  const statuses = ['Not Started', 'In Progress', 'Completed'];
+  let tasks = [];
+  const startDate = new Date();
+  
+  for (let i = 1; i <= taskNames.length * 2; i++) {
+    const taskName = taskNames[i % taskNames.length];
+    const requiredSkill = skills[Math.floor(Math.random() * skills.length)];
+    const deadline = new Date(startDate.getTime() + (Math.random() * 30 * 24 * 60 * 60 * 1000)); // Random deadline within 30 days
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    tasks.push([i, taskName, requiredSkill, deadline.toISOString().split('T')[0], status, '', '']);
+  }
+
+  // Write task data to sheet
+  tasksSheet.getRange(2, 1, tasks.length, tasks[0].length).setValues(tasks);
+  
+  Logger.log('Random data generation complete.');
+}
+
 function assignTasks() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tasksSheet = ss.getSheetByName('Tasks');
@@ -38,11 +94,6 @@ function assignTasks() {
       }
     }
   }
-}
-
-function onOpen() {
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('Task Automation')
-      .addItem('Assign Tasks', 'assignTasks')
-      .addToUi();
+  
+  Logger.log('Task assignment complete.');
 }
