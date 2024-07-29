@@ -1,0 +1,48 @@
+function assignTasks() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const tasksSheet = ss.getSheetByName('Tasks');
+  const employeesSheet = ss.getSheetByName('Employees');
+  
+  const tasksRange = tasksSheet.getDataRange();
+  const tasks = tasksRange.getValues();
+  
+  const employeesRange = employeesSheet.getDataRange();
+  const employees = employeesRange.getValues();
+  
+  // Create a map of employees and their details
+  let employeeMap = {};
+  for (let i = 1; i < employees.length; i++) {
+    let [name, skills, maxTasks, email] = employees[i];
+    employeeMap[name] = {
+      skills: skills.split(',').map(skill => skill.trim()),
+      maxTasks: maxTasks,
+      email: email,
+      assignedTasks: 0
+    };
+  }
+  
+  // Assign tasks to employees
+  for (let i = 1; i < tasks.length; i++) {
+    let [taskID, taskName, requiredSkill, deadline, status, assignedTo, notionPageId] = tasks[i];
+    
+    if (!assignedTo) {  // If task is not already assigned
+      for (let employee in employeeMap) {
+        if (employeeMap[employee].skills.includes(requiredSkill) && 
+            employeeMap[employee].assignedTasks < employeeMap[employee].maxTasks) {
+          
+          // Assign the task
+          tasksSheet.getRange(i + 1, 6).setValue(employee);  // Assuming "assignedTo" is the 6th column
+          employeeMap[employee].assignedTasks++;
+          break;
+        }
+      }
+    }
+  }
+}
+
+function onOpen() {
+  const ui = SpreadsheetApp.getUi();
+  ui.createMenu('Task Automation')
+      .addItem('Assign Tasks', 'assignTasks')
+      .addToUi();
+}
